@@ -33,7 +33,12 @@ export default function LoginPage() {
       });
 
       if (!result || result.error) {
-        throw new Error('Invalid email or password');
+        const code = result?.error;
+        const message =
+          !code || code === 'CredentialsSignin'
+            ? 'Invalid email or password'
+            : `Sign-in failed on the server (${code}). Check the deployment logs.`;
+        throw new Error(message);
       }
 
       router.push(result.url ?? '/dashboard');

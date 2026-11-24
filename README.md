@@ -63,6 +63,26 @@ directly:
 4. Optionally set `RESEND_API_KEY`.
 5. Deploy. Healthcheck: `GET /api/health`.
 
+## Troubleshooting sign-in
+
+"Invalid email or password" means the credentials provider rejected the attempt.
+To see exactly why, set a `DIAG_TOKEN` variable on the service and open:
+
+```
+https://YOUR-ADMIN-DOMAIN/api/diagnose?token=YOUR-DIAG-TOKEN
+```
+
+It reports whether `DATABASE_URL`/`NEXTAUTH_SECRET` are present, whether the
+`users` table exists, and which accounts exist. To test a password as well:
+
+```powershell
+Invoke-RestMethod -Uri "https://YOUR-ADMIN-DOMAIN/api/diagnose" -Method Post `
+  -Headers @{ "x-diag-token" = "YOUR-DIAG-TOKEN" } -ContentType "application/json" `
+  -Body '{"email":"you@example.com","password":"your-password"}'
+```
+
+Unset `DIAG_TOKEN` (or delete `src/app/api/diagnose`) when finished.
+
 ## Security notes
 
 - Change the seeded admin password immediately after first login.

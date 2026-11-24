@@ -13,11 +13,31 @@ export const authOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
-        const res = await query('SELECT id, email, password_hash, role FROM users WHERE email = $1', [credentials.email]);
-        const user = res.rows[0];
-        if (!user) return null;
+        const email = credentials.email.trim().toLowerCase();
+
+        let user;
+        try {
+          const res = await query(
+            'SELECT id, email, password_hash, role FROM users WHERE lower(email) = $1',
+            [email]
+          );
+          user = res.rows[0];
+        } catch (error) {
+          console.error('[auth] database error during sign-in:', error);
+          return null;
+        }
+
+        if (!user) {
+          console.error('[auth] sign-in failed: no user row for', email);
+          return null;
+        }
+
         const isValid = await bcrypt.compare(credentials.password, user.password_hash);
-        if (!isValid) return null;
+        if (!isValid) {
+          console.error('[auth] sign-in failed: password mismatch for', email);
+          return null;
+        }
+
         return { id: user.id, email: user.email, role: user.role };
       }
     })
