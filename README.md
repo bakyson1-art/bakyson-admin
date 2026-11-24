@@ -24,6 +24,13 @@ Next.js application from the public website and is deployed as its own service.
 Access is limited to users whose `role` is `admin` or `employee` in the shared
 `users` table. Destructive actions require `admin`.
 
+Authorization is enforced in `src/app/dashboard/layout.tsx` (Node.js runtime) and
+by `requireAdmin`/`requireStaff` inside every server action - deliberately **not**
+in middleware. NextAuth v4's `withAuth` runs on the Edge runtime, where it can
+disagree with the Node runtime about the session cookie name
+(`next-auth.session-token` vs `__Secure-next-auth.session-token`) and bounce valid
+logins back to `/login`.
+
 ## Architecture
 
 This app shares the **same PostgreSQL database** as the public site. It does not
