@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -11,8 +11,6 @@ import { Mail, Lock, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react'
 
 export default function ResetPasswordPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const email = searchParams.get('email') || '';
 
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -27,6 +25,7 @@ export default function ResetPasswordPage() {
     setIsLoading(true);
 
     const formData = new FormData(e.target as HTMLFormElement);
+    const email = formData.get('email') as string;
     const otp = formData.get('otp') as string;
     const newPassword = formData.get('newPassword') as string;
     const confirmPassword = formData.get('confirmPassword') as string;
@@ -59,7 +58,6 @@ export default function ResetPasswordPage() {
       setMessage(data.message || 'Password reset successful.');
       setIsLoading(false);
 
-      // Auto-redirect to login after a short delay
       setTimeout(() => {
         router.push('/login');
       }, 2000);
@@ -75,7 +73,7 @@ export default function ResetPasswordPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Reset password</CardTitle>
           <CardDescription>
-            Enter your one-time code and choose a new password.
+            Enter your email, one-time code, and choose a new password.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -97,15 +95,7 @@ export default function ResetPasswordPage() {
                 <Mail className="h-4 w-4 text-muted-foreground" />
                 <Label htmlFor="email">Email address</Label>
               </div>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                defaultValue={email}
-                required
-                readOnly
-                className="bg-muted"
-              />
+              <Input id="email" name="email" type="email" placeholder="you@company.com" required />
             </div>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
