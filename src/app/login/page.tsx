@@ -8,11 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Mail, Lock, AlertCircle } from 'lucide-react';
+import { Mail, Lock, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   async function handleSignIn(e: React.FormEvent) {
@@ -79,15 +80,42 @@ export default function LoginPage() {
                 <Lock className="h-4 w-4 text-muted-foreground" />
                 <Label htmlFor="password">Password</Label>
               </div>
-              <Input id="password" name="password" type="password" placeholder="••••••••" required />
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  required
+                  className="pr-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </Button>
+              </div>
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? 'Signing in...' : 'Sign In'}
             </Button>
           </form>
-          <p className="text-xs text-muted-foreground text-center mt-4">
-            Only admin and employee accounts can access the admin dashboard.
-          </p>
+          <div className="text-center space-y-2">
+            <Link
+              href="/forgot-password"
+              className="text-xs text-muted-foreground hover:text-foreground underline"
+            >
+              Forgot password?
+            </Link>
+            <p className="text-xs text-muted-foreground">
+              Only admin and employee accounts can access the admin dashboard.
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>
