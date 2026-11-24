@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { AutoSubmitForm, ConfirmForm } from '@/components/admin/interactive-forms';
 
 const statuses = ['active', 'on_hold', 'completed', 'cancelled'] as const;
 
@@ -104,23 +105,28 @@ export default async function ProjectsPage() {
                     <td className="py-4 text-muted-foreground">{project.location || '—'}</td>
                     <td className="py-4 text-muted-foreground">{project.manager_email || project.manager || '—'}</td>
                     <td className="py-4">
-                      <form action={updateProject} className="flex items-center gap-2">
-                        <input type="hidden" name="id" value={String(project.id)} />
+                      <AutoSubmitForm
+                        action={updateProject}
+                        hidden={{ id: project.id }}
+                        className="flex items-center gap-2"
+                      >
                         <select
                           name="status"
                           defaultValue={project.status || 'active'}
                           className="border border-border rounded-md px-2 py-1 text-sm bg-transparent focus:ring-0"
-                          onChange={(e) => (e.currentTarget as HTMLSelectElement).form?.requestSubmit?.()}
                         >
                           {statuses.map((s) => (
                             <option key={s} value={s}>{s.replace('_', ' ')}</option>
                           ))}
                         </select>
-                      </form>
+                      </AutoSubmitForm>
                     </td>
                     <td className="py-4 text-right">
-                      <form action={updateProject} className="flex items-center gap-2">
-                        <input type="hidden" name="id" value={String(project.id)} />
+                      <AutoSubmitForm
+                        action={updateProject}
+                        hidden={{ id: project.id }}
+                        className="flex items-center gap-2"
+                      >
                         <input
                           name="progress"
                           type="number"
@@ -128,20 +134,20 @@ export default async function ProjectsPage() {
                           max="100"
                           defaultValue={project.progress ?? 0}
                           className="w-20 border border-border rounded-md px-2 py-1 text-sm text-right bg-transparent focus:ring-0"
-                          onChange={(e) => (e.currentTarget as HTMLInputElement).form?.requestSubmit?.()}
                         />
                         <span className="text-xs text-muted-foreground">%</span>
-                      </form>
+                      </AutoSubmitForm>
                     </td>
                     <td className="py-4 text-right">
-                      <form action={deleteProject} onSubmit={(e) => {
-                        if (!confirm('Delete this project?')) e.preventDefault();
-                      }}>
-                        <input type="hidden" name="id" value={String(project.id)} />
+                      <ConfirmForm
+                        action={deleteProject}
+                        hidden={{ id: project.id }}
+                        confirmMessage="Delete this project?"
+                      >
                         <Button type="submit" variant="destructive" size="sm">
                           Delete
                         </Button>
-                      </form>
+                      </ConfirmForm>
                     </td>
                   </tr>
                 ))}

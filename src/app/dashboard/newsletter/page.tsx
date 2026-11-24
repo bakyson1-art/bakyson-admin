@@ -3,6 +3,7 @@ import { requireAdmin } from '@/lib/auth';
 import { updateNewsletter, deleteNewsletter } from '@/lib/admin-actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { AutoSubmitForm, ConfirmForm } from '@/components/admin/interactive-forms';
 
 const statuses = ['active', 'unsubscribed'] as const;
 
@@ -46,13 +47,15 @@ export default async function NewsletterPage() {
                   <tr key={sub.id} className="border-b border-border last:border-0">
                     <td className="py-4 font-medium">{sub.email}</td>
                     <td className="py-4">
-                      <form action={updateNewsletter} className="flex items-center gap-2">
-                        <input type="hidden" name="id" value={String(sub.id)} />
+                      <AutoSubmitForm
+                        action={updateNewsletter}
+                        hidden={{ id: sub.id }}
+                        className="flex items-center gap-2"
+                      >
                         <select
                           name="status"
                           defaultValue={sub.status}
                           className="border border-border rounded-md px-2 py-1 text-sm bg-transparent focus:ring-0"
-                          onChange={(e) => (e.currentTarget as HTMLSelectElement).form?.requestSubmit?.()}
                         >
                           {statuses.map((s) => (
                             <option key={s} value={s}>{s}</option>
@@ -61,20 +64,21 @@ export default async function NewsletterPage() {
                         <span className={`ml-2 text-xs font-semibold ${sub.status === 'active' ? 'text-green-600' : 'text-gray-500'}`}>
                           {sub.status}
                         </span>
-                      </form>
+                      </AutoSubmitForm>
                     </td>
                     <td className="py-4 text-right text-muted-foreground">
                       {new Date(sub.created_at).toLocaleDateString()}
                     </td>
                     <td className="py-4 text-right">
-                      <form action={deleteNewsletter} onSubmit={(e) => {
-                        if (!confirm('Remove this subscriber?')) e.preventDefault();
-                      }}>
-                        <input type="hidden" name="id" value={String(sub.id)} />
+                      <ConfirmForm
+                        action={deleteNewsletter}
+                        hidden={{ id: sub.id }}
+                        confirmMessage="Remove this subscriber?"
+                      >
                         <Button type="submit" size="sm" className="bg-red-600 text-white hover:bg-red-700">
                           Remove
                         </Button>
-                      </form>
+                      </ConfirmForm>
                     </td>
                   </tr>
                 ))}

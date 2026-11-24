@@ -3,6 +3,7 @@ import { requireAdmin } from '@/lib/auth';
 import { updateApplication, deleteApplication } from '@/lib/admin-actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { AutoSubmitForm, ConfirmForm } from '@/components/admin/interactive-forms';
 
 const statuses = ['new', 'reviewing', 'interview', 'hired', 'rejected'] as const;
 
@@ -53,13 +54,15 @@ export default async function ApplicationsPage() {
                     <td className="py-4 font-medium">{app.name}</td>
                     <td className="py-4 text-muted-foreground">{app.position}</td>
                     <td className="py-4">
-                      <form action={updateApplication} className="flex items-center gap-2">
-                        <input type="hidden" name="id" value={String(app.id)} />
+                      <AutoSubmitForm
+                        action={updateApplication}
+                        hidden={{ id: app.id }}
+                        className="flex items-center gap-2"
+                      >
                         <select
                           name="status"
                           defaultValue={app.status || 'new'}
                           className="border border-border rounded-md px-2 py-1 text-sm bg-transparent focus:ring-0"
-                          onChange={(e) => (e.currentTarget as HTMLSelectElement).form?.requestSubmit?.()}
                         >
                           {statuses.map((s) => (
                             <option key={s} value={s}>{s}</option>
@@ -70,7 +73,7 @@ export default async function ApplicationsPage() {
                             {app.status}
                           </span>
                         )}
-                      </form>
+                      </AutoSubmitForm>
                     </td>
                     <td className="py-4 text-right text-muted-foreground">
                       {new Date(app.created_at).toLocaleDateString()}
@@ -87,14 +90,15 @@ export default async function ApplicationsPage() {
                             Resume
                           </a>
                         )}
-                        <form action={deleteApplication} onSubmit={(e) => {
-                          if (!confirm('Delete this application?')) e.preventDefault();
-                        }}>
-                          <input type="hidden" name="id" value={String(app.id)} />
+                        <ConfirmForm
+                          action={deleteApplication}
+                          hidden={{ id: app.id }}
+                          confirmMessage="Delete this application?"
+                        >
                           <Button type="submit" size="sm" className="bg-red-600 text-white hover:bg-red-700">
                             Delete
                           </Button>
-                        </form>
+                        </ConfirmForm>
                       </div>
                     </td>
                   </tr>

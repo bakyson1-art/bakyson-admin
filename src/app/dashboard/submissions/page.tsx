@@ -3,6 +3,7 @@ import { requireAdmin } from '@/lib/auth';
 import { deleteSubmission } from '@/lib/admin-actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { ConfirmForm } from '@/components/admin/interactive-forms';
 
 export default async function SubmissionsPage() {
   await requireAdmin();
@@ -56,14 +57,15 @@ export default async function SubmissionsPage() {
                       {new Date(sub.created_at).toLocaleDateString()}
                     </td>
                     <td className="py-4 text-right">
-                      <form action={deleteSubmission} onSubmit={(e) => {
-                        if (!confirm('Delete this submission?')) e.preventDefault();
-                      }}>
-                        <input type="hidden" name="id" value={String(sub.id)} />
+                      <ConfirmForm
+                        action={deleteSubmission}
+                        hidden={{ id: sub.id }}
+                        confirmMessage="Delete this submission?"
+                      >
                         <Button type="submit" size="sm" className="bg-red-600 text-white hover:bg-red-700">
                           Delete
                         </Button>
-                      </form>
+                      </ConfirmForm>
                     </td>
                   </tr>
                 ))}

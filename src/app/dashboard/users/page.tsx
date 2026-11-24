@@ -4,6 +4,7 @@ import { updateUserRole, deleteUser } from '@/lib/admin-actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { AutoSubmitForm, ConfirmForm } from '@/components/admin/interactive-forms';
 import bcrypt from 'bcryptjs';
 
 const roles = ['admin', 'employee', 'user'] as const;
@@ -45,32 +46,35 @@ export default async function UsersPage() {
                     <tr key={user.id} className="border-b border-border last:border-0">
                       <td className="py-4">{user.email}</td>
                       <td className="py-4">
-                        <form action={updateUserRole} className="flex items-center gap-2">
-                          <input type="hidden" name="id" value={String(user.id)} />
+                        <AutoSubmitForm
+                          action={updateUserRole}
+                          hidden={{ id: user.id }}
+                          className="flex items-center gap-2"
+                        >
                           <select
                             name="role"
                             defaultValue={user.role}
                             className="border border-border rounded-md px-2 py-1 text-sm bg-transparent focus:ring-0"
-                            onChange={(e) => (e.currentTarget as HTMLSelectElement).form?.requestSubmit?.()}
                           >
                             {roles.map((r) => (
                               <option key={r} value={r}>{r}</option>
                             ))}
                           </select>
-                        </form>
+                        </AutoSubmitForm>
                       </td>
                       <td className="py-4 text-right text-muted-foreground">
                         {new Date(user.created_at).toLocaleDateString()}
                       </td>
                       <td className="py-4 text-right">
-                        <form action={deleteUser} onSubmit={(e) => {
-                          if (!confirm('Delete this user? This cannot be undone.')) e.preventDefault();
-                        }}>
-                          <input type="hidden" name="id" value={String(user.id)} />
+                        <ConfirmForm
+                          action={deleteUser}
+                          hidden={{ id: user.id }}
+                          confirmMessage="Delete this user? This cannot be undone."
+                        >
                           <Button type="submit" size="sm" className="bg-red-600 text-white hover:bg-red-700" disabled={user.id === 1}>
                             Delete
                           </Button>
-                        </form>
+                        </ConfirmForm>
                       </td>
                     </tr>
                   ))}

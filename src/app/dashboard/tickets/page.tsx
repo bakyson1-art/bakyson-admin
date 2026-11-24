@@ -3,6 +3,7 @@ import { requireStaff } from '@/lib/auth';
 import { updateTicket, deleteTicket } from '@/lib/admin-actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { AutoSubmitForm, ConfirmForm } from '@/components/admin/interactive-forms';
 
 const statuses = ['open', 'in_progress', 'resolved', 'closed'] as const;
 
@@ -65,32 +66,35 @@ export default async function TicketsPage() {
                       </span>
                     </td>
                     <td className="py-4">
-                      <form action={updateTicket} className="flex items-center gap-2">
-                        <input type="hidden" name="id" value={String(ticket.id)} />
+                      <AutoSubmitForm
+                        action={updateTicket}
+                        hidden={{ id: ticket.id }}
+                        className="flex items-center gap-2"
+                      >
                         <select
                           name="status"
                           defaultValue={ticket.status || 'open'}
                           className="border border-border rounded-md px-2 py-1 text-sm bg-transparent focus:ring-0"
-                          onChange={(e) => (e.currentTarget as HTMLSelectElement).form?.requestSubmit?.()}
                         >
                           {statuses.map((s) => (
                             <option key={s} value={s}>{s.replace('_', ' ')}</option>
                           ))}
                         </select>
-                      </form>
+                      </AutoSubmitForm>
                     </td>
                     <td className="py-4 text-right text-muted-foreground">
                       {new Date(ticket.created_at).toLocaleDateString()}
                     </td>
                     <td className="py-4 text-right">
-                      <form action={deleteTicket} onSubmit={(e) => {
-                        if (!confirm('Delete this ticket?')) e.preventDefault();
-                      }}>
-                        <input type="hidden" name="id" value={String(ticket.id)} />
+                      <ConfirmForm
+                        action={deleteTicket}
+                        hidden={{ id: ticket.id }}
+                        confirmMessage="Delete this ticket?"
+                      >
                         <Button type="submit" size="sm" className="bg-red-600 text-white hover:bg-red-700">
                           Delete
                         </Button>
-                      </form>
+                      </ConfirmForm>
                     </td>
                   </tr>
                 ))}
