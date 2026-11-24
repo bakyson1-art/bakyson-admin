@@ -112,7 +112,7 @@ export default function ResetPasswordPage() {
                 <Lock className="h-4 w-4 text-muted-foreground" />
                 <Label htmlFor="otp">One-time code</Label>
               </div>
-              <Input id="otp" name="otp" type="text" placeholder="123456" maxLength="6" required />
+              <Input id="otp" name="otp" type="text" placeholder="123456" maxLength={6} required />
             </div>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
