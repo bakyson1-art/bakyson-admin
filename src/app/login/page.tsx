@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -24,25 +25,18 @@ export default function LoginPage() {
     const password = formData.get('password') as string;
 
     try {
-      const res = await fetch('/api/auth/callback/credentials', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({
-          email,
-          password,
-          csrfToken: '',
-          callbackUrl: '/dashboard',
-          json: 'true',
-        }),
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+        callbackUrl: '/dashboard',
       });
 
-      const data = await res.json();
-
-      if (!res.ok || data.error) {
-        throw new Error(data.error?.message || 'Invalid email or password');
+      if (!result || result.error) {
+        throw new Error('Invalid email or password');
       }
 
-      router.push('/dashboard');
+      router.push(result.url ?? '/dashboard');
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sign in failed');

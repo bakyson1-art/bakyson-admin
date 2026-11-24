@@ -18,14 +18,14 @@
     "next": "16.4.6",
     "next-auth": "^4.24.15",
     "pg": "^8.23.1",
-    "resend": "^4.0.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "resend": "^4.0.0",
     "tailwind-merge": "^3.7.0",
     "zod": "^3.24.0"
   },
   "devDependencies": {
-    "@tailwindcss/turbopack": "4.3.3",
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^20",
     "@types/pg": "^8.23.1",
     "@types/react": "^19",
