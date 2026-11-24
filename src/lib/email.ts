@@ -28,7 +28,7 @@ export async function sendTicketStatusEmail({
   }
   try {
     await getResend().emails.send({
-      from: 'Bakyson <notifications@bakyson.com>',
+      from: process.env.RESEND_FROM || 'Bakyson <onboarding@resend.dev>',
       to,
       subject: `Ticket #${ticketId} status updated — ${subject}`,
       html: `

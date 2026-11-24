@@ -73,7 +73,7 @@ export default function LoginPage() {
                 <Mail className="h-4 w-4 text-muted-foreground" />
                 <Label htmlFor="email">Email address</Label>
               </div>
-              <Input id="email" name="email" type="email" placeholder="admin@bakyson.com" required />
+              <Input id="email" name="email" type="email" placeholder="you@company.com" required />
             </div>
             <div className="space-y-2">
               <div className="flex items-center gap-2">

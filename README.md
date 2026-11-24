@@ -28,8 +28,8 @@ Access is limited to users whose `role` is `admin` or `employee` in the shared
 
 This app shares the **same PostgreSQL database** as the public site. It does not
 have its own migrations or copy of the schema - the schema lives in the public
-repo at `database/schema.sql` (seed in `database/seed.sql`). Apply schema changes
-there, once, against the shared database.
+repo at `database/schema.sql`. Apply it once (and create admin accounts) with the
+public repo's setup script: `node scripts/db-setup.mjs`.
 
 `NEXTAUTH_SECRET` must match the public site exactly. Sessions are still scoped to
 the host, so signing into the public site does not sign you into the dashboard.
