@@ -1,11 +1,13 @@
+import { randomInt } from 'node:crypto';
 import { query } from '@/lib/db';
 import { sendPasswordResetOTP } from '@/lib/email';
-import bcrypt from 'bcryptjs';
 
 export const runtime = 'nodejs';
 
+const OTP_COOLDOWN_SECONDS = 60;
+
 function generateOTP(): string {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+  return randomInt(100000, 1000000).toString();
 }
 
 export async function POST(req: Request) {
@@ -27,6 +29,17 @@ export async function POST(req: Request) {
 
     // Always return success to avoid email enumeration
     if (!user) {
+      return Response.json({ message: 'If an account exists, a reset code has been sent.' });
+    }
+
+    // Throttle issuance: at most one code per minute per account.
+    const recent = await query(
+      `SELECT 1 FROM password_reset_tokens
+       WHERE user_id = $1 AND created_at > NOW() - ($2 * INTERVAL '1 second')
+       LIMIT 1`,
+      [user.id, OTP_COOLDOWN_SECONDS]
+    );
+    if (recent.rowCount) {
       return Response.json({ message: 'If an account exists, a reset code has been sent.' });
     }
 

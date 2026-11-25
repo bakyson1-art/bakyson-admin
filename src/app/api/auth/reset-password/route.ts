@@ -3,6 +3,8 @@ import bcrypt from 'bcryptjs';
 
 export const runtime = 'nodejs';
 
+const MAX_OTP_ATTEMPTS = 5;
+
 export async function POST(req: Request) {
   try {
     const { email, otp, newPassword } = await req.json();
@@ -40,6 +42,14 @@ export async function POST(req: Request) {
     }
 
     if (token.token !== otp) {
+      // Count the failed attempt and burn the code once the cap is reached.
+      await query(
+        `UPDATE password_reset_tokens
+         SET attempts = attempts + 1,
+             used = (attempts + 1 >= $2)
+         WHERE id = $1`,
+        [token.id, MAX_OTP_ATTEMPTS]
+      );
       return Response.json({ error: 'Invalid OTP' }, { status: 400 });
     }
 
