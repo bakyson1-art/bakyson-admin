@@ -11,8 +11,8 @@ export async function POST(req: Request) {
       return Response.json({ error: 'Email, OTP, and new password are required' }, { status: 400 });
     }
 
-    if (newPassword.length < 6) {
-      return Response.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
+    if (newPassword.length < 12) {
+      return Response.json({ error: 'Password must be at least 12 characters' }, { status: 400 });
     }
 
     const normalizedEmail = email.trim().toLowerCase();
