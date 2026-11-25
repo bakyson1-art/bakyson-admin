@@ -1,6 +1,7 @@
 import { query } from '@/lib/db';
 import { requireAdmin } from '@/lib/auth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
 
 export default async function ActivityLogsPage() {
   await requireAdmin();
@@ -32,54 +33,58 @@ export default async function ActivityLogsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Log Entries</CardTitle>
+          <CardTitle className="text-sm font-semibold">Log Entries</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="text-muted-foreground">
-                <tr>
-                  <th className="pb-3 font-medium">Time</th>
-                  <th className="pb-3 font-medium">User</th>
-                  <th className="pb-3 font-medium">Action</th>
-                  <th className="pb-3 font-medium">Target</th>
-                  <th className="pb-3 font-medium text-right">Details</th>
-                </tr>
-              </thead>
-              <tbody>
-                {logs.map((log) => (
-                  <tr key={log.id} className="border-b border-border last:border-0">
-                    <td className="py-4 text-muted-foreground">
-                      {new Date(log.created_at).toLocaleString()}
-                    </td>
-                    <td className="py-4 font-medium">{log.user_email || '—'}</td>
-                    <td className="py-4">
-                      <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                        {log.action.replace('.', ' ')}
-                      </span>
-                    </td>
-                    <td className="py-4 text-muted-foreground">
-                      {log.target_type && log.target_id
-                        ? `${log.target_type} #${log.target_id}`
-                        : '—'}
-                    </td>
-                    <td className="py-4 text-right">
-                      {log.metadata && Object.keys(log.metadata).length > 0 ? (
-                        <span className="text-xs text-primary underline">View</span>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-                {logs.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="py-8 text-center text-muted-foreground">No activity logged yet.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          {logs.length > 0 ? (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs sm:text-sm text-left">
+                  <thead className="text-muted-foreground">
+                    <tr>
+                      <th className="pb-2 sm:pb-3 font-medium">Time</th>
+                      <th className="pb-2 sm:pb-3 font-medium">User</th>
+                      <th className="pb-2 sm:pb-3 font-medium">Action</th>
+                      <th className="pb-2 sm:pb-3 font-medium">Target</th>
+                      <th className="pb-2 sm:pb-3 font-medium text-right">Details</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {logs.map((log) => (
+                      <tr key={log.id} className="border-b border-border last:border-0">
+                        <td className="py-2 sm:py-3 text-muted-foreground text-[10px] sm:text-xs">
+                          {new Date(log.created_at).toLocaleString()}
+                        </td>
+                        <td className="py-2 sm:py-3 font-medium">{log.user_email || '—'}</td>
+                        <td className="py-2 sm:py-3">
+                          <span className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                            {log.action.replace('.', ' ')}
+                          </span>
+                        </td>
+                        <td className="py-2 sm:py-3 text-muted-foreground">
+                          {log.target_type && log.target_id
+                            ? `${log.target_type} #${log.target_id}`
+                            : '—'}
+                        </td>
+                        <td className="py-2 sm:py-3 text-right">
+                          {log.metadata && Object.keys(log.metadata).length > 0 ? (
+                            <span className="text-[10px] text-primary underline">View</span>
+                          ) : (
+                            <span className="text-[10px] text-muted-foreground">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          ) : (
+            <EmptyState
+              title="No activity logged yet"
+              description="Admin actions will appear here in the audit trail."
+            />
+          )}
         </CardContent>
       </Card>
     </div>

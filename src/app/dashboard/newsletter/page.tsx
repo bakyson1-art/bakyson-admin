@@ -4,6 +4,7 @@ import { updateNewsletter, deleteNewsletter } from '@/lib/admin-actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AutoSubmitForm, ConfirmForm } from '@/components/admin/interactive-forms';
+import { EmptyState } from '@/components/ui/empty-state';
 
 const statuses = ['active', 'unsubscribed'] as const;
 
@@ -29,67 +30,71 @@ export default async function NewsletterPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Subscribers</CardTitle>
+          <CardTitle className="text-sm font-semibold">Subscribers</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="text-muted-foreground">
-                <tr>
-                  <th className="pb-3 font-medium">Email</th>
-                  <th className="pb-3 font-medium">Status</th>
-                  <th className="pb-3 font-medium text-right">Subscribed</th>
-                  <th className="pb-3 font-medium text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {subscriptions.map((sub) => (
-                  <tr key={sub.id} className="border-b border-border last:border-0">
-                    <td className="py-4 font-medium">{sub.email}</td>
-                    <td className="py-4">
-                      <AutoSubmitForm
-                        action={updateNewsletter}
-                        hidden={{ id: sub.id }}
-                        className="flex items-center gap-2"
-                      >
-                        <select
-                          name="status"
-                          defaultValue={sub.status}
-                          className="border border-border rounded-md px-2 py-1 text-sm bg-transparent focus:ring-0"
-                        >
-                          {statuses.map((s) => (
-                            <option key={s} value={s}>{s}</option>
-                          ))}
-                        </select>
-                        <span className={`ml-2 text-xs font-semibold ${sub.status === 'active' ? 'text-green-600' : 'text-gray-500'}`}>
-                          {sub.status}
-                        </span>
-                      </AutoSubmitForm>
-                    </td>
-                    <td className="py-4 text-right text-muted-foreground">
-                      {new Date(sub.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="py-4 text-right">
-                      <ConfirmForm
-                        action={deleteNewsletter}
-                        hidden={{ id: sub.id }}
-                        confirmMessage="Remove this subscriber?"
-                      >
-                        <Button type="submit" size="sm" className="bg-red-600 text-white hover:bg-red-700">
-                          Remove
-                        </Button>
-                      </ConfirmForm>
-                    </td>
-                  </tr>
-                ))}
-                {subscriptions.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="py-8 text-center text-muted-foreground">No subscribers found.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          {subscriptions.length > 0 ? (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs sm:text-sm text-left">
+                  <thead className="text-muted-foreground">
+                    <tr>
+                      <th className="pb-2 sm:pb-3 font-medium">Email</th>
+                      <th className="pb-2 sm:pb-3 font-medium">Status</th>
+                      <th className="pb-2 sm:pb-3 font-medium text-right">Subscribed</th>
+                      <th className="pb-2 sm:pb-3 font-medium text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {subscriptions.map((sub) => (
+                      <tr key={sub.id} className="border-b border-border last:border-0">
+                        <td className="py-2 sm:py-3 font-medium">{sub.email}</td>
+                        <td className="py-2 sm:py-3">
+                          <AutoSubmitForm
+                            action={updateNewsletter}
+                            hidden={{ id: sub.id }}
+                            className="flex items-center gap-2"
+                          >
+                            <select
+                              name="status"
+                              defaultValue={sub.status}
+                              className="border border-border rounded-md px-2 py-1 text-xs sm:text-xs bg-transparent focus:ring-0"
+                            >
+                              {statuses.map((s) => (
+                                <option key={s} value={s}>{s}</option>
+                              ))}
+                            </select>
+                            <span className={`ml-1 text-[10px] sm:text-xs font-semibold ${sub.status === 'active' ? 'text-green-600' : 'text-gray-500'}`}>
+                              {sub.status}
+                            </span>
+                          </AutoSubmitForm>
+                        </td>
+                        <td className="py-2 sm:py-3 text-right text-muted-foreground text-[10px] sm:text-xs">
+                          {new Date(sub.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="py-2 sm:py-3 text-right">
+                          <ConfirmForm
+                            action={deleteNewsletter}
+                            hidden={{ id: sub.id }}
+                            confirmMessage="Remove this subscriber?"
+                          >
+                            <Button type="submit" size="sm" className="bg-red-600 text-white hover:bg-red-700">
+                              Remove
+                            </Button>
+                          </ConfirmForm>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          ) : (
+            <EmptyState
+              title="No subscribers found"
+              description="Newsletter subscribers will appear here."
+            />
+          )}
         </CardContent>
       </Card>
     </div>

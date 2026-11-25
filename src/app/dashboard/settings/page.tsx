@@ -20,7 +20,7 @@ export default async function SettingsPage() {
 
       <Card className="w-full max-w-2xl">
         <CardHeader>
-          <CardTitle>Account</CardTitle>
+          <CardTitle className="text-sm font-semibold">Account</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
@@ -36,7 +36,7 @@ export default async function SettingsPage() {
 
       <Card className="w-full max-w-2xl">
         <CardHeader>
-          <CardTitle>Change Password</CardTitle>
+          <CardTitle className="text-sm font-semibold">Change Password</CardTitle>
         </CardHeader>
         <CardContent>
           <form action={changePassword} className="space-y-4">

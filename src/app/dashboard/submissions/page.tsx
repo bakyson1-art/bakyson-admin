@@ -4,6 +4,7 @@ import { deleteSubmission } from '@/lib/admin-actions';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ConfirmForm } from '@/components/admin/interactive-forms';
+import { EmptyState } from '@/components/ui/empty-state';
 
 export default async function SubmissionsPage() {
   await requireAdmin();
@@ -31,52 +32,56 @@ export default async function SubmissionsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>All Submissions</CardTitle>
+          <CardTitle className="text-sm font-semibold">All Submissions</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm text-left">
-              <thead className="text-muted-foreground">
-                <tr>
-                  <th className="pb-3 font-medium">Name</th>
-                  <th className="pb-3 font-medium">Email</th>
-                  <th className="pb-3 font-medium">Company</th>
-                  <th className="pb-3 font-medium">Service</th>
-                  <th className="pb-3 font-medium text-right">Received</th>
-                  <th className="pb-3 font-medium text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {submissions.map((sub) => (
-                  <tr key={sub.id} className="border-b border-border last:border-0">
-                    <td className="py-4 font-medium">{sub.name}</td>
-                    <td className="py-4 text-muted-foreground">{sub.email}</td>
-                    <td className="py-4 text-muted-foreground">{sub.company || '—'}</td>
-                    <td className="py-4 text-muted-foreground">{sub.service || '—'}</td>
-                    <td className="py-4 text-right text-muted-foreground">
-                      {new Date(sub.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="py-4 text-right">
-                      <ConfirmForm
-                        action={deleteSubmission}
-                        hidden={{ id: sub.id }}
-                        confirmMessage="Delete this submission?"
-                      >
-                        <Button type="submit" size="sm" className="bg-red-600 text-white hover:bg-red-700">
-                          Delete
-                        </Button>
-                      </ConfirmForm>
-                    </td>
-                  </tr>
-                ))}
-                {submissions.length === 0 && (
-                  <tr>
-                    <td colSpan={6} className="py-8 text-center text-muted-foreground">No submissions found.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          {submissions.length > 0 ? (
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs sm:text-sm text-left">
+                  <thead className="text-muted-foreground">
+                    <tr>
+                      <th className="pb-2 sm:pb-3 font-medium">Name</th>
+                      <th className="pb-2 sm:pb-3 font-medium">Email</th>
+                      <th className="pb-2 sm:pb-3 font-medium">Company</th>
+                      <th className="pb-2 sm:pb-3 font-medium">Service</th>
+                      <th className="pb-2 sm:pb-3 font-medium text-right">Received</th>
+                      <th className="pb-2 sm:pb-3 font-medium text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {submissions.map((sub) => (
+                      <tr key={sub.id} className="border-b border-border last:border-0">
+                        <td className="py-2 sm:py-3 font-medium">{sub.name}</td>
+                        <td className="py-2 sm:py-3 text-muted-foreground">{sub.email}</td>
+                        <td className="py-2 sm:py-3 text-muted-foreground">{sub.company || '—'}</td>
+                        <td className="py-2 sm:py-3 text-muted-foreground">{sub.service || '—'}</td>
+                        <td className="py-2 sm:py-3 text-right text-muted-foreground text-[10px] sm:text-xs">
+                          {new Date(sub.created_at).toLocaleDateString()}
+                        </td>
+                        <td className="py-2 sm:py-3 text-right">
+                          <ConfirmForm
+                            action={deleteSubmission}
+                            hidden={{ id: sub.id }}
+                            confirmMessage="Delete this submission?"
+                          >
+                            <Button type="submit" size="sm" className="bg-red-600 text-white hover:bg-red-700">
+                              Delete
+                            </Button>
+                          </ConfirmForm>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          ) : (
+            <EmptyState
+              title="No submissions found"
+              description="Contact form submissions will appear here."
+            />
+          )}
         </CardContent>
       </Card>
     </div>
