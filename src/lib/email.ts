@@ -45,32 +45,55 @@ export async function sendTicketStatusEmail({
   }
 }
 
-export interface PasswordResetOTPParams {
+export interface PasswordResetEmailParams {
   to: string;
-  otp: string;
+  resetUrl: string;
+  expiresInMinutes: number;
 }
 
-export async function sendPasswordResetOTP({ to, otp }: PasswordResetOTPParams) {
+export async function sendPasswordResetEmail({
+  to,
+  resetUrl,
+  expiresInMinutes,
+}: PasswordResetEmailParams): Promise<boolean> {
   if (!process.env.RESEND_API_KEY) {
-    console.warn('RESEND_API_KEY not set; skipping password reset OTP email');
-    return;
+    console.error(
+      '[email] RESEND_API_KEY is not set; password reset links cannot be delivered'
+    );
+    return false;
   }
+
   try {
-    await getResend().emails.send({
+    const { error } = await getResend().emails.send({
       from: process.env.RESEND_FROM || 'Bakyson <onboarding@resend.dev>',
       to,
-      subject: 'Your password reset code',
+      subject: 'Reset your Bakyson password',
       html: `
-        <h2>Password Reset</h2>
-        <p>You requested a password reset for your Bakyson admin account.</p>
-        <p>Your one-time code is: <strong style="font-size:20px;letter-spacing:2px;">${otp}</strong></p>
-        <p>This code expires in 15 minutes.</p>
-        <p>If you didn't request this, you can safely ignore this email.</p>
+        <h2>Reset your password</h2>
+        <p>We received a request to reset the password for your Bakyson admin account.</p>
+        <p>
+          <a href="${resetUrl}" style="display:inline-block;padding:12px 20px;background:#ea580c;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;">
+            Reset password
+          </a>
+        </p>
+        <p>This link expires in ${expiresInMinutes} minutes and can only be used once.</p>
+        <p>If the button does not work, copy and paste this address into your browser:</p>
+        <p style="word-break:break-all;color:#555;">${resetUrl}</p>
+        <p>If you didn't request this, you can safely ignore this email. Your password will not change.</p>
         <hr />
         <p style="color:#666;font-size:12px;">Bakyson ICT Solutions</p>
       `,
+      text: `Reset your Bakyson password\n\nOpen this link to choose a new password:\n${resetUrl}\n\nThis link expires in ${expiresInMinutes} minutes and can only be used once.\n\nIf you didn't request this, you can safely ignore this email.`,
     });
+
+    if (error) {
+      console.error('Failed to send password reset email:', error);
+      return false;
+    }
+
+    return true;
   } catch (err) {
-    console.error('Failed to send password reset OTP email:', err);
+    console.error('Failed to send password reset email:', err);
+    return false;
   }
 }

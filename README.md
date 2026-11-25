@@ -11,6 +11,8 @@ Next.js application from the public website and is deployed as its own service.
 | Route | Purpose |
 | --- | --- |
 | `/login` | Staff sign-in (NextAuth credentials) |
+| `/forgot-password` | Request a secure password reset link by email |
+| `/reset-password?token=...` | Choose a new password (only reachable from a valid emailed link) |
 | `/dashboard` | KPIs, recent tickets, recent activity |
 | `/dashboard/users` | Create users, change roles, delete accounts |
 | `/dashboard/projects` | Create projects, update status/progress |
@@ -67,8 +69,32 @@ directly:
 2. Attach the existing PostgreSQL database (`DATABASE_URL` is injected by Railway).
 3. Set `NEXTAUTH_SECRET` (same value as the public site) and `NEXTAUTH_URL`
    (this service's public URL).
-4. Optionally set `RESEND_API_KEY`.
+4. Set `RESEND_API_KEY` and `RESEND_FROM` to enable password-reset emails
+   (required for the forgot-password flow; also enables ticket emails).
 5. Deploy. Healthcheck: `GET /api/health`.
+
+## Password resets
+
+`/forgot-password` always shows the same "check your email" screen so it never
+reveals whether an account exists. For real accounts it emails a random,
+single-use link that expires after 30 minutes. Only a SHA-256 hash of the token
+is stored in `password_reset_tokens`, so reading the database cannot produce a
+working reset URL.
+
+The reset page validates the token before rendering the form. Submitting the new
+password consumes the token and invalidates every other outstanding link for
+that account.
+
+This flow needs email delivery to work:
+
+- Set `RESEND_API_KEY`.
+- Set `RESEND_FROM` to a sender on a domain verified in Resend. Resend's
+  `onboarding@resend.dev` sender only delivers to the Resend account owner.
+- `NEXTAUTH_URL` must be this admin app's public URL, because it is used to build
+  the link in the email.
+
+If email delivery fails, the API still returns the same generic response (to
+avoid account enumeration) but logs the failure in the deployment logs.
 
 ## Troubleshooting sign-in
 

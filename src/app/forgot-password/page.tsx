@@ -1,30 +1,31 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Mail, AlertCircle, CheckCircle } from 'lucide-react';
 
 export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [sentTo, setSentTo] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [stage, setStage] = useState<'email' | 'sent'>('email');
-  const router = useRouter();
 
   async function handleForgotPassword(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
-    setMessage(null);
     setIsLoading(true);
 
     const formData = new FormData(e.target as HTMLFormElement);
-    const email = formData.get('email') as string;
-    const normalizedEmail = email.trim().toLowerCase();
+    const email = (formData.get('email') as string).trim().toLowerCase();
 
     try {
       const res = await fetch('/api/auth/forgot-password', {
@@ -33,40 +34,53 @@ export default function ForgotPasswordPage() {
         body: JSON.stringify({ email }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to send reset code');
+        throw new Error(data.error || 'Failed to send reset link');
       }
 
-      // Redirect to reset password page with email pre-filled
-      router.push(`/reset-password?email=${encodeURIComponent(normalizedEmail)}`);
+      // Stay on this screen. The reset form is only reachable via the emailed
+      // link, and the response is intentionally the same for unknown emails.
+      setSentTo(email);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send reset code');
+      setError(err instanceof Error ? err.message : 'Failed to send reset link');
     } finally {
       setIsLoading(false);
     }
   }
 
-  if (stage === 'sent') {
+  if (sentTo) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Check your email</CardTitle>
             <CardDescription>
-              A one-time code has been sent to reset your password.
+              If an account exists for {sentTo}, we sent it a link to reset the password.
             </CardDescription>
           </CardHeader>
-          <CardContent className="text-center py-8">
+          <CardContent className="text-center space-y-4">
             <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
-            <p className="mt-4 text-sm">{message}</p>
-            <Link
-              href="/login"
-              className="mt-6 inline-flex items-center text-xs font-medium text-primary underline-offset-4 hover:underline"
-            >
-              ← Back to sign in
-            </Link>
+            <p className="text-sm text-muted-foreground">
+              The link expires in 30 minutes and can only be used once. If you do not see
+              the email, check your spam folder.
+            </p>
+            <div className="space-y-1 text-sm">
+              <button
+                type="button"
+                onClick={() => setSentTo(null)}
+                className="text-primary font-medium underline underline-offset-4"
+              >
+                Use a different email
+              </button>
+              <p className="text-xs text-muted-foreground">
+                Or{' '}
+                <Link href="/login" className="text-primary font-medium underline">
+                  back to sign in
+                </Link>
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -79,7 +93,7 @@ export default function ForgotPasswordPage() {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Forgot password?</CardTitle>
           <CardDescription>
-            Enter your email and we'll send you a one-time code to reset your password.
+            Enter your email and we&apos;ll send you a secure link to choose a new password.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -98,7 +112,7 @@ export default function ForgotPasswordPage() {
               <Input id="email" name="email" type="email" placeholder="you@company.com" required />
             </div>
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? 'Sending...' : 'Send reset code'}
+              {isLoading ? 'Sending...' : 'Send reset link'}
             </Button>
           </form>
           <p className="text-xs text-muted-foreground text-center mt-4">
